@@ -2,6 +2,7 @@ import { Component, OnInit } from '@angular/core';
 import * as Chartist from 'chartist';
 import { PolicyService } from 'app/policy.service';
 import { map } from 'rxjs/operators';
+import { LineChartService } from 'app/charts/line-chart.service';
 
 @Component({
   selector: 'app-dashboard',
@@ -13,19 +14,59 @@ export class DashboardComponent implements OnInit {
   customers: any;
   details: any;
   private history = [];
-  private historySeries = [12, 17, 7, 17, 23, 18, 38];
+  private historySeries = [];  //if this array is empty this chart will not load
   private historyLabels = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
   private dailySalesChart_Instance;
   private dataDailySalesChart;
   private optionsDailySalesChart;
 
+  private flowspeed = 0.0;
+  private rotorpeeed = 0.0;
+  private timestamp = "0.0";
+  private waterlevel = 0.0;
+  
+
   constructor(
-    private policy: PolicyService
+    private policy: PolicyService, private bdd:LineChartService
   ) {
     this.List();
+    this.basicDetails();
+    
    }
 
-   
+   basicDetails(){
+    console.log("Basic Details");
+    
+    // this.bdd.getBasicDashboardDetails().snapshotChanges()
+    // .pipe(
+    //   map(actions => 
+    //     actions.map(a => 
+    //       console.log(a.payload)
+    //       )
+    //     )
+    // );
+
+    this.bdd.getBasicDashboardDetails().snapshotChanges().pipe(
+      map(changes =>
+        changes.map(c =>
+          ({ key: c.payload.key, ...c.payload.val() })
+        )
+      )
+    ).subscribe(details => {
+      this.details = details;
+      // Object.assign(this.history, this.customers)
+      console.log(this.details[0]['flowRate']);
+      console.log(this.details[0]['motorSpeed']);
+      console.log(this.details[0]['timeStamp']);
+      console.log(this.details[0]['waterLevel']);
+      // this.historyChartdata();
+
+      this.flowspeed = this.details[0]['flowRate'];
+      this.rotorpeeed = this.details[0]['motorSpeed'];
+      this.timestamp = this.details[0]['timeStamp'];
+      this.waterlevel = this.details[0]['waterLevel'];
+    });
+   }
 
   chart() {
     console.log("button Click");
