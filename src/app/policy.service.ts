@@ -27,10 +27,10 @@ export class PolicyService {
     // this.getPolicies() 
   }
 
-  getPolicies() {
-    this.data = this.firestore.collection('waspx-d2876').snapshotChanges();
-    console.log(this.data);
-  }
+  // getPolicies() {
+  //   this.data = this.firestore.collection('waspx-d2876').snapshotChanges();
+  //   console.log(this.data);
+  // }
 
   getCustomersList(): AngularFireList<Policy> {
     return this.customersRef;

@@ -13,21 +13,22 @@ export class DashboardComponent implements OnInit {
   customers: any;
   details: any;
   private history = [];
-  private historySeries = [];
-  private historyLabels = [];
+  private historySeries = [12, 17, 7, 17, 23, 18, 38];
+  private historyLabels = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
+  private dailySalesChart_Instance;
+  private dataDailySalesChart;
+  private optionsDailySalesChart;
 
   constructor(
     private policy: PolicyService
   ) {
-    this.getchartdata();
+    this.List();
    }
 
    
 
   chart() {
     console.log("button Click");
-    this.policy.getPolicies();
-    // this.getchartdata();
     this.barDetailsList();
   }
 
@@ -42,6 +43,7 @@ export class DashboardComponent implements OnInit {
       this.customers = customers;
       Object.assign(this.history, this.customers)
       // console.log(this.customers);
+      this.historyChartdata();
     });
   }
 
@@ -58,20 +60,24 @@ export class DashboardComponent implements OnInit {
     });
   }
 
-  getchartdata(){
-    this.List();
-    console.log(this.history);
+  historyChartdata(){
+    // this.List();
+    console.log("historyChartdata()" + this.history);
+    let arrX = [];
+    let arrY = [];
     this.history.forEach(data => {
-      this.historySeries.push(data.area);
-      this.historyLabels.push(data.day);
+      arrY.push(data.area);
+      arrX.push(data.day_short);
       // console.log(data.area);
     }
   );
+  this.historySeries = arrY;
+  this.historyLabels = arrX;
+  this.ngAfterViewInitt();
   console.log(this.historySeries);
   console.log(this.historyLabels);
-    // this.historyLabels
-    // this.historySeries
   }
+
   startAnimationForLineChart(chart){
       let seq: any, delays: any, durations: any;
       seq = 0;
@@ -134,26 +140,43 @@ export class DashboardComponent implements OnInit {
       /* ----------==========     Daily Sales Chart initialization For Documentation    ==========---------- */
       // setTimeout(function(){ 
         // this.getchartdata();
-      const dataDailySalesChart: any = {
-          labels: ['M', 'T', 'W', 'T', 'F', 'S', 'S'],
-          series: [
-              // 
-            this.historySeries
-          ]
-      };
 
-     const optionsDailySalesChart: any = {
-          lineSmooth: Chartist.Interpolation.cardinal({
-              tension: 0
-          }),
-          low: 0,
-          high: 50, // creative tim: we recommend you to set the high sa the biggest value + something for a better look
-          chartPadding: { top: 0, right: 0, bottom: 0, left: 0},
-      }
+      // const dataDailySalesChart: any = {
+      //     labels: this.historyLabels,
+      //     series: [
+      //       this.historySeries
+      //     ]
+      // };
 
-      var dailySalesChart = new Chartist.Line('#dailySalesChart', dataDailySalesChart, optionsDailySalesChart);
+    //   const optionsDailySalesChart: any = {
+    //     lineSmooth: Chartist.Interpolation.cardinal({
+    //         tension: 0
+    //     }),
+    //     low: 0,
+    //     high: 50, // creative tim: we recommend you to set the high sa the biggest value + something for a better look
+    //     chartPadding: { top: 0, right: 0, bottom: 0, left: 0},
+    // }
+    
+      this.dataDailySalesChart = {
+        labels: this.historyLabels,
+        series: [
+          this.historySeries
+        ]
+    };
 
-      this.startAnimationForLineChart(dailySalesChart);
+    this.optionsDailySalesChart = {
+      lineSmooth: Chartist.Interpolation.cardinal({
+          tension: 0
+      }),
+      low: 0,
+      high: 50, // creative tim: we recommend you to set the high sa the biggest value + something for a better look
+      chartPadding: { top: 0, right: 0, bottom: 0, left: 0},
+  }
+     
+
+      this.dailySalesChart_Instance = new Chartist.Line('#dailySalesChart',  this.dataDailySalesChart, this.optionsDailySalesChart);
+
+      this.startAnimationForLineChart(this.dailySalesChart_Instance);
 
 
       /* ----------==========     Completed Tasks Chart initialization    ==========---------- */
@@ -214,6 +237,20 @@ export class DashboardComponent implements OnInit {
       this.startAnimationForBarChart(websiteViewsChart); 
       // }, 3000);
       
+  }
+
+  ngAfterViewInitt() {
+    this.dataDailySalesChart = {
+      labels: this.historyLabels,
+      series: [
+        this.historySeries
+      ]
+  };
+    this.dailySalesChart_Instance = new Chartist.Line(
+      '#dailySalesChart',  this.dataDailySalesChart, this.optionsDailySalesChart
+      );
+
+    this.startAnimationForLineChart(this.dailySalesChart_Instance);
   }
 
 }

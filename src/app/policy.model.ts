@@ -2,6 +2,7 @@ export class Policy {
     area: number;
     day: string;
     volume: number;
+    day_short: string;
 }
 
 export class BarDetails {
